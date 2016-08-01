@@ -7,6 +7,7 @@ import numpy as np
 import nibabel as nib
 import os
 import fnmatch
+from timeit import default_timer as timer
 
 __author__ = "Nicholas Nguyen, Eric Barnett"
 __credits__ = ["Nicholas Nguyen", "Eric Barnett", "Stephen Faraone", "Ioana Coman", "Wendy Kates"]
@@ -17,7 +18,7 @@ __email__ = "nguyenni@upstate.edu"
 __status__ = "Prototype"
 
 
-
+start = timer()
 ## Objective 1 : Create data input pipeline
 
 # Load all .nii files in the directory.
@@ -68,7 +69,7 @@ def conv_net(x, weights, biases, dropout):
     # Reshape input image
     x = tf.reshape(x, shape=[-1, 121, 145, 121, 1])
     # Convolution Layer
-    conv1 = conv3d(x, weights['wc1'], biases['bc1'])
+    conv2 = conv3d(x, weights['wc1'], biases['bc1'])
     # Max Pooling (down-sampling)
     #conv1 = maxpool2d(conv1, k=2)
 
@@ -79,8 +80,8 @@ def conv_net(x, weights, biases, dropout):
 
     # Fully connected layer
     # Reshape conv1 output to fit fully connected layer input
-    conv1shape = conv1.get_shape().as_list()
-    fc1 = tf.reshape(conv1, [-1, conv1shape[1]*conv1shape[2]*conv1shape[3]*conv1shape[4]])
+    conv2shape = conv2.get_shape().as_list()
+    fc1 = tf.reshape(conv2, [-1, conv2shape[1]*conv2shape[2]*conv2shape[3]*conv2shape[4]])
     fc1 = tf.add(tf.matmul(fc1, weights['wd1']), biases['bd1'])
     fc1 = tf.nn.relu(fc1)
     # Apply Dropout
@@ -91,22 +92,22 @@ def conv_net(x, weights, biases, dropout):
     return out
 
 # Training Parameters
-learning_rate = 0.1
-training_iters = 10
+learning_rate = 0.01
+training_iters = 2
 batch_size = 1
 display_step = 1
 
 # Network Parameters
 n_input = [None, 121, 145, 121] # sMRI data input (img shape: 121 x 145 x 121)
 n_classes = 1 # sMRI total classes (case v. control
-dropout = 0.75 # Dropout, probability to keep units
+dropout = 0.5 # Dropout, probability to keep units
 
 # Store layers weight & bias
 weights = {
     # 3x3 conv, 1 input, 32 outputs
     'wc1': tf.Variable(tf.random_normal([3, 3, 3, 1, 4])),
     # 3x3 conv, 32 inputs, 64 outputs
-    'wc2': tf.Variable(tf.random_normal([3, 3, 3, 32, 64])),
+    'wc2': tf.Variable(tf.random_normal([3, 3, 3, 4, 4])),
     # fully connected, 7*7*64 inputs, 1024 outputs
     'wd1': tf.Variable(tf.random_normal([8491780, 16])),
     # 1024 inputs, 10 outputs (class prediction)
@@ -115,7 +116,7 @@ weights = {
 
 biases = {
     'bc1': tf.Variable(tf.random_normal([4])),
-    'bc2': tf.Variable(tf.random_normal([64])),
+    'bc2': tf.Variable(tf.random_normal([4])),
     'bd1': tf.Variable(tf.random_normal([16])),
     'out': tf.Variable(tf.random_normal([n_classes]))
 }
@@ -162,25 +163,5 @@ with tf.Session() as sess:
             step += 1
     print "Model training complete"
 
-
-    #step = 1
-    # Keep training until reach max iterations
-    #while step * batch_size < training_iters:
-        #print ".",
-        #batch_x = tf.train.batch(
-        	#data,
-        	#batch_size = batch_size,
-        	#enqueue_many = False)
-        # Run optimization op (backprop)
-        #sess.run(optimizer, feed_dict={x: batch_x.eval(), y: batch_y.eval(),
-                                       #keep_prob: dropout})
-        #if step % display_step == 0:
-            #Calculate batch loss and accuracy
-            #loss, acc = sess.run([cost, accuracy], feed_dict={x: batch_x.eval(),
-                                                              #y: batch_y.eval(),
-                                                              #keep_prob: 1.})
-            #print "Iter " + str(step*batch_size) + ", Minibatch Loss= " + \
-                  #"{:.6f}".format(loss) + ", Training Accuracy= " + \
-                  #"{:.5f}".format(acc)
-        #step += 1
-    #print "Optimization Finished!"
+end = timer()
+print(end - start)
