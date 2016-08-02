@@ -95,7 +95,7 @@ display_step = 1
 
 # Network Parameters
 n_input = [None, 121, 145, 121] # sMRI data input (img shape: 121 x 145 x 121)
-n_classes = 1 # sMRI total classes (case v. control
+n_classes = 2 # sMRI total classes (case v. control)
 dropout = 0.5 # Dropout, probability to keep units
 
 # Store layers weight & bias
