@@ -65,12 +65,12 @@ def conv_net(x, weights, biases, dropout):
     # Reshape input image
     x = tf.reshape(x, shape=[-1, 121, 145, 121, 1])
     # Convolution Layer
-    conv2 = conv3d(x, weights['wc1'], biases['bc1'])
+    conv1 = conv3d(x, weights['wc1'], biases['bc1'])
     # Max Pooling (down-sampling)
     #conv1 = maxpool2d(conv1, k=2)
 
     # Convolution Layer
-    #conv2 = conv3d(conv1, weights['wc2'], biases['bc2'])
+    conv2 = conv3d(conv1, weights['wc2'], biases['bc2'])
     # Max Pooling (down-sampling)
     #conv2 = maxpool2d(conv2, k=2)
 
