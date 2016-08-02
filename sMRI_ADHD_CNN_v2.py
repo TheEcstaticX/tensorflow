@@ -88,26 +88,26 @@ def conv_net(x, weights, biases, dropout):
     return out
 
 # Training Parameters
-learning_rate = 0.01
-training_iters = 2
+learning_rate = 0.001
+training_iters = 1
 batch_size = 1
 display_step = 1
 
 # Network Parameters
 n_input = [None, 121, 145, 121] # sMRI data input (img shape: 121 x 145 x 121)
 n_classes = 2 # sMRI total classes (case v. control)
-dropout = 0.5 # Dropout, probability to keep units
+dropout = 0.75 # Dropout, probability to keep units
 
 # Store layers weight & bias
 weights = {
     # 3x3 conv, 1 input, 32 outputs
-    'wc1': tf.Variable(tf.random_normal([3, 3, 3, 1, 4])),
+    'wc1': tf.Variable(tf.random_normal([3, 3, 3, 1, 32])),
     # 3x3 conv, 32 inputs, 64 outputs
-    'wc2': tf.Variable(tf.random_normal([3, 3, 3, 4, 4])),
+    'wc2': tf.Variable(tf.random_normal([3, 3, 3, 32, 64])),
     # fully connected, 7*7*64 inputs, 1024 outputs
-    'wd1': tf.Variable(tf.random_normal([8491780, 16])),
+    'wd1': tf.Variable(tf.random_normal([135868480, 1024])),
     # 1024 inputs, 10 outputs (class prediction)
-    'out': tf.Variable(tf.random_normal([16, n_classes]))
+    'out': tf.Variable(tf.random_normal([1024, n_classes]))
 }
 
 biases = {
@@ -145,13 +145,13 @@ with tf.Session() as sess:
         # Define batches
         training_batch = zip(range(0, len(data), batch_size),
                              range(batch_size, len(data) + 1, batch_size))
-        step = 1
+        step = 0
         for start, end in training_batch:
             sess.run(optimizer, feed_dict={x: data[start:end], y: labels[start:end],
         	                               keep_prob: dropout})
             # Calculate batch loss and accuracy
-            loss, acc = sess.run([cost, accuracy], feed_dict={x: data[start:end],
-                                                              y: labels[start:end],
+            loss, acc = sess.run([cost, accuracy], feed_dict={x: data[0:end],
+                                                              y: labels[0:end],
                                                               keep_prob: 1.})
             print "Iter " + str(i) + ", Batch " + str(step) + \
                   ", Minibatch Loss= " + "{:.6f}".format(loss) + \
