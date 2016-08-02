@@ -12,7 +12,7 @@ from timeit import default_timer as timer
 __author__ = "Nicholas Nguyen, Eric Barnett"
 __credits__ = ["Nicholas Nguyen", "Eric Barnett", "Stephen Faraone", "Ioana Coman", "Wendy Kates"]
 
-__version__ = "0.0.2"
+__version__ = "0.0.3"
 __maintainer__ = "Nicholas Nguyen"
 __email__ = "nguyenni@upstate.edu"
 __status__ = "Prototype"
@@ -43,15 +43,11 @@ print("Begin loading phenotype labels...")
 phenotype = np.genfromtxt('adhd200_mini_phenotypics.csv', delimiter = ',', skip_header = 1)
 labels = []
 for i in xrange(0, len(phenotype)):
-	if phenotype[i,1] > 0.0:
-		labels.append(1.0)
-	else:
-		labels.append(0.0)
+	labels.append(phenotype[i,2:4])
 print("Phenotype label loading complete")
 
 print("Number of phenotypes loaded: " + str(len(labels)))
 labels = np.asarray(labels)
-labels = labels.reshape(len(labels), 1)
 
 
 
